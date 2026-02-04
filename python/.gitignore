@@ -49,3 +49,28 @@ jest-test-results.json
 .yarn
 simulation_results
 trader_data_cache
+
+# Python
+__pycache__/
+*.pyc
+.env
+.venv/
+venv/
+
+# Logs
+*.log
+
+# macOS
+.DS_Store
+
+# VS Code
+.vscode/
+
+# Env files (never commit secrets)
+.env*
+!.env.example
+
+# Generated artifacts
+python/strategy_factory_results/
+strategy_factory_results/
+
