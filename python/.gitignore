@@ -74,3 +74,9 @@ venv/
 python/strategy_factory_results/
 strategy_factory_results/
 
+__pycache__/
+*.pyc
+
+.env*
+!.env.example
+
