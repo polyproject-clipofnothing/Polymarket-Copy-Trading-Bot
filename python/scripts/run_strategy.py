@@ -6,4 +6,4 @@ def main() -> int:
 
 
 if __name__ == "__main__":
-    raise RuntimeError("Run as: python -m scripts.run_strategy")
+    raise SystemExit(main())

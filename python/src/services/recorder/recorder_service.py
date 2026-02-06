@@ -6,13 +6,16 @@ Purpose:
 - No trading execution
 - No private keys required
 
-This is a scaffold entrypoint that will be wired to:
-- websocket/polling ingestion
-- persistence (S3/DynamoDB/Mongo) in later PRs
+This service produces raw canonical events for downstream consumers
+(strategy, simulation, analytics).
 """
 
 
 from __future__ import annotations
+
+from src.services.recorder.ingestion.poller import poll_events
+from src.services.recorder.ingestion.normalizer import normalize_event
+from src.services.recorder.ingestion.writer import write_event
 
 
 def main() -> int:
@@ -22,8 +25,14 @@ def main() -> int:
     Returns:
         int: process exit code (0 = success)
     """
-    print("[Phase 1b] Recorder service starting (scaffold).")
+    print("[Phase 1b] Recorder service starting.")
+    print(" - Ingestion enabled.")
     print(" - No execution allowed.")
     print(" - No private keys required.")
-    print("TODO: Implement ingestion -> raw-events storage.")
+
+    for raw_event in poll_events():
+        event = normalize_event(raw_event)
+        write_event(event)
+        print(f"[Recorder] Event written: {event['type']}")
+
     return 0

@@ -6,4 +6,5 @@ def main() -> int:
 
 
 if __name__ == "__main__":
-    raise RuntimeError("Run as: python -m scripts.run_recorder")
+    # Correct entrypoint when run as a module
+    raise SystemExit(main())

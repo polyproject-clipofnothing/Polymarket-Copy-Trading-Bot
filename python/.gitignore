@@ -52,3 +52,5 @@ trader_data_cache
 
 __pycache__/
 *.pyc
+
+recorder_data/
