@@ -17,8 +17,10 @@ out/
 # TypeScript files
 *.tsbuildinfo
 
-# Environment variables
-.env
+# Environment variables (never commit secrets)
+.env*
+!.env.example
+
 
 # Temporary files
 *.tmp
@@ -52,4 +54,10 @@ trader_data_cache
 
 __pycache__/
 *.pyc
+
+# Python caches / tooling
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.pyo
 
