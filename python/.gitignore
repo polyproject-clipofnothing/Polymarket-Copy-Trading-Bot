@@ -54,3 +54,5 @@ __pycache__/
 *.pyc
 
 recorder_data/
+
+strategy_data/
