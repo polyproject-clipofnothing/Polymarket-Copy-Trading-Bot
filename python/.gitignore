@@ -56,3 +56,5 @@ __pycache__/
 recorder_data/
 
 strategy_data/
+
+simulation_results/
