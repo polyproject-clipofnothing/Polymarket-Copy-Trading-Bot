@@ -68,6 +68,7 @@ execution_reports/
 crash.log
 *.tfvars
 *.tfvars.json
+backend.hcl
 
 # Local overrides
 override.tf

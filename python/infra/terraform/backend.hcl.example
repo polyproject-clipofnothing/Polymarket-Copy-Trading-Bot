@@ -1,0 +1,5 @@
+bucket         = "polymarket-copy-bot-tfstate-dev-137097287791"
+key            = "polymarket-copy-bot/dev/terraform.tfstate"
+region         = "us-east-1"
+dynamodb_table = "polymarket-copy-bot-tf-lock-dev"
+encrypt        = true
