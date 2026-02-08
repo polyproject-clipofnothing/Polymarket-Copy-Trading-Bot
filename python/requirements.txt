@@ -5,6 +5,8 @@ web3>=6.11.0
 httpx>=0.25.0
 websockets>=12.0
 colorama>=0.4.6
+boto3>=1.34
+
 
 # Additional utilities
 python-dateutil>=2.8.2
