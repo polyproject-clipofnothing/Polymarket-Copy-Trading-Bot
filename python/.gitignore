@@ -78,3 +78,9 @@ override.tf.json
 
 # Terraform lock info (OK to keep; up to you)
 # .terraform.lock.hcl
+# Terraform
+**/.terraform/
+**/.terraform.lock.hcl
+**/*.tfstate
+**/*.tfstate.*
+**/backend.hcl
