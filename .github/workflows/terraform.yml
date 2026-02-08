@@ -18,8 +18,6 @@ permissions:
 
 jobs:
   terraform:
-    # ✅ PR16-A change: skip CI until PR16-B provides the role ARN secret
-    if: secrets.AWS_TERRAFORM_ROLE_ARN != ''
     runs-on: ubuntu-latest
 
     defaults:
@@ -36,7 +34,6 @@ jobs:
       - name: Configure AWS credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          # ✅ PR16-A change: role ARN comes from repo secret (set in PR16-B after admin apply)
           role-to-assume: ${{ secrets.AWS_TERRAFORM_ROLE_ARN }}
           aws-region: us-east-1
 
@@ -44,7 +41,6 @@ jobs:
         run: terraform fmt -check -recursive
 
       - name: Terraform init (CI-safe)
-        # ✅ Best practice: use example backend config in CI; never depend on local backend.hcl
         run: terraform init -backend-config=backend.hcl.example -reconfigure
 
       - name: Terraform validate
