@@ -50,6 +50,8 @@ jest-test-results.json
 simulation_results
 trader_data_cache
 
+__pycache__/
+*.pyc
 .env
 .env.*
 

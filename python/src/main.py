@@ -7,8 +7,8 @@ import sys
 from src.config.db import connect_db, close_db
 from src.config.env import ENV
 from src.utils.create_clob_client import create_clob_client
-from src.services.trade_executor import trade_executor, stop_trade_executor
-from src.services.trade_monitor import trade_monitor, stop_trade_monitor
+from python.src.services.trader.trade_executor import trade_executor, stop_trade_executor
+from python.src.services.trader.trade_monitor import trade_monitor, stop_trade_monitor
 from src.utils.logger import startup, info, success, warning, error, separator
 from src.utils.system_status import check_system_status, display_system_status
 
