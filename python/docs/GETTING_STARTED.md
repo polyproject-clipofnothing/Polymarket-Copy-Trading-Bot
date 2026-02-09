@@ -304,7 +304,9 @@ Or use the setup wizard to update.
 ### Start the Bot
 
 ```bash
-python -m src.main
+python -m scripts.run_simulation
+python -m scripts.run_recorder
+python -m scripts.run_strategy
 ```
 
 You should see:

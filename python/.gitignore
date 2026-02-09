@@ -52,5 +52,28 @@ trader_data_cache
 
 __pycache__/
 *.pyc
+.env
+.env.*
 
-recorder_data/
+__pycache__/
+*.pyc
+*.pyo
+
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+venv/
+.venv/
+env/
+
+# =====================
+# Cloud / IaC
+# =====================
+.terraform/
+*.tfstate
+*.tfstate.*
+cdk.out/
+.aws/
