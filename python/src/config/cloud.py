@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import os
 
-
 # Backends: "local" now; "aws" later (Phase 2+)
 CLOUD_BACKEND = os.getenv("CLOUD_BACKEND", "local").strip().lower()
 

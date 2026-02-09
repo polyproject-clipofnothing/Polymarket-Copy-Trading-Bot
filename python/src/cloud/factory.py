@@ -28,15 +28,19 @@ def get_cloud() -> CloudServices:
         return _cloud_singleton
 
     backend = CLOUD_BACKEND
-    if backend == "local":
-        _cloud_singleton = LocalCloudServices(
-            events=LocalEventPublisher(LOCAL_EVENT_DIR),
-            objects=LocalObjectStore(LOCAL_OBJECT_DIR),
-            secrets=EnvSecretProvider(),
+    if backend != "local":
+        raise RuntimeError(
+            f"CLOUD_BACKEND={backend!r} not supported in Phase 1. Use CLOUD_BACKEND=local."
         )
-        return _cloud_singleton
 
-    # Placeholder for Phase 2
-    raise RuntimeError(
-        f"CLOUD_BACKEND={backend!r} not supported in Phase 1. Use CLOUD_BACKEND=local."
-    )
+    events = LocalEventPublisher(LOCAL_EVENT_DIR)
+    secrets = EnvSecretProvider()
+
+    if OBJECT_STORE_BACKEND == "s3":
+        from .aws_s3 import S3ObjectStore
+        objects = S3ObjectStore()
+    else:
+        objects = LocalObjectStore(LOCAL_OBJECT_DIR)
+
+    _cloud_singleton = LocalCloudServices(events=events, objects=objects, secrets=secrets)
+    return _cloud_singleton
