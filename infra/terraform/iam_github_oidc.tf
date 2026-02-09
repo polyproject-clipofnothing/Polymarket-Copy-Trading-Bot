@@ -5,15 +5,6 @@
 # - aws_iam_role / policies
 # PR16 ships the IaC + CI workflow; an admin must apply infra once.
 
-# NOTE (PR16-A):
-# This file requires an AWS principal with IAM privileges to apply.
-# The polymarket-dev SSO role does not have:
-# - iam:CreateOpenIDConnectProvider
-# - iam:CreateRole
-# - iam:PutRolePolicy
-# PR16-A ships the IaC + GitHub workflow; PR16-B completes setup after admin apply.
-
-
 #############################################
 # GitHub Actions OIDC → AssumeRole (Terraform)
 #############################################
@@ -31,12 +22,12 @@ locals {
   # Role name (keep stable; used in docs/workflow)
   gha_role_name = "polymarket-copy-bot-terraform-ci"
 
-  # Terraform remote state resources (from your earlier work)
+  # Terraform remote state resources
   tfstate_bucket = "polymarket-copy-bot-tfstate-dev-137097287791"
   tfstate_key    = "polymarket-copy-bot/dev/terraform.tfstate"
   tf_lock_table  = "polymarket-copy-bot-tf-lock-dev"
 
-  # Artifacts bucket (current stack manages this)
+  # Artifacts bucket (stack manages this)
   artifacts_bucket = "polymarket-copy-bot-objects-dev-137097287791"
 }
 
@@ -53,7 +44,6 @@ resource "aws_iam_openid_connect_provider" "github_actions" {
 
   # GitHub uses standard CA chains; AWS still requires thumbprints.
   # This value is commonly used for GitHub's OIDC provider.
-  # If your org requires a different thumbprint, update here.
   thumbprint_list = [
     "6938fd4d98bab03faadb97b34396831e3780aea1",
   ]
@@ -95,7 +85,7 @@ data "aws_iam_policy_document" "github_actions_trust" {
     # condition {
     #   test     = "StringLike"
     #   variable = "token.actions.githubusercontent.com:job_workflow_ref"
-    #   values   = ["${local.github_owner}/${local.github_repo}/.github/workflows/terraform.yml@*"]
+    #   values   = ["${local.github_owner}/${local.github_repo}/.github/workflows/terraform-ci.yml@*"]
     # }
   }
 }
@@ -157,13 +147,37 @@ data "aws_iam_policy_document" "github_actions_terraform_permissions" {
     ]
   }
 
-  # --- Stack resources Terraform manages (start: S3 artifacts bucket) ---
+  # --- IMPORTANT: allow Terraform refresh to read OIDC provider it manages ---
+  statement {
+    sid    = "IamReadOidcProvider"
+    effect = "Allow"
+    actions = [
+      "iam:GetOpenIDConnectProvider",
+    ]
+    resources = [
+      aws_iam_openid_connect_provider.github_actions.arn,
+    ]
+  }
+
+  # --- Stack resources Terraform manages (S3 artifacts bucket) ---
   statement {
     sid    = "ArtifactsBucketRead"
     effect = "Allow"
     actions = [
       "s3:GetBucketLocation",
       "s3:ListBucket",
+    ]
+    resources = [
+      "arn:${data.aws_partition.current.partition}:s3:::${local.artifacts_bucket}",
+    ]
+  }
+
+  # --- IMPORTANT: allow Terraform refresh to read bucket policy (Terraform does this on refresh) ---
+  statement {
+    sid    = "ArtifactsBucketReadPolicy"
+    effect = "Allow"
+    actions = [
+      "s3:GetBucketPolicy",
     ]
     resources = [
       "arn:${data.aws_partition.current.partition}:s3:::${local.artifacts_bucket}",
