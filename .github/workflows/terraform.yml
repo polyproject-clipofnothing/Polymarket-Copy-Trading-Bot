@@ -1,6 +1,7 @@
 name: terraform
 # trigger: refresh workflow run
 on:
+  workflow_dispatch:
   pull_request:
     paths:
       - "infra/terraform/**"
