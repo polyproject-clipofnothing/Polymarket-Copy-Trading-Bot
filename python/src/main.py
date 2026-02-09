@@ -112,9 +112,13 @@ async def main():
         await graceful_shutdown()
 
 
-if __name__ == '__main__':
-    try:
-        asyncio.run(main())
-    except KeyboardInterrupt:
-        pass  # Signal handler will handle shutdown
+if __name__ == "__main__":
+    raise RuntimeError(
+        "Do not run src.main directly.\n"
+        "Use:\n"
+        "  python -m scripts.run_simulation   (Phase 1a)\n"
+        "  python -m scripts.run_recorder     (Phase 1b)\n"
+        "  python -m scripts.run_strategy     (Phase 2)\n"
+    )
+
 
