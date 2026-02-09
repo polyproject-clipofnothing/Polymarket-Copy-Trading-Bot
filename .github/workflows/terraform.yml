@@ -1,5 +1,5 @@
 name: terraform
-
+# trigger: refresh workflow run
 on:
   pull_request:
     paths:
