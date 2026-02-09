@@ -84,3 +84,28 @@ override.tf.json
 **/*.tfstate
 **/*.tfstate.*
 **/backend.hcl
+.env
+.env.*
+
+__pycache__/
+*.pyc
+*.pyo
+
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+venv/
+.venv/
+env/
+
+# =====================
+# Cloud / IaC
+# =====================
+.terraform/
+*.tfstate
+*.tfstate.*
+cdk.out/
+.aws/
