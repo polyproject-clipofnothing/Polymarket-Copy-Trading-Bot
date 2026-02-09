@@ -5,6 +5,14 @@
 # - aws_iam_role / policies
 # PR16 ships the IaC + CI workflow; an admin must apply infra once.
 
+# NOTE (PR16-A):
+# This file requires an AWS principal with IAM privileges to apply.
+# The polymarket-dev SSO role does not have:
+# - iam:CreateOpenIDConnectProvider
+# - iam:CreateRole
+# - iam:PutRolePolicy
+# PR16-A ships the IaC + GitHub workflow; PR16-B completes setup after admin apply.
+
 
 #############################################
 # GitHub Actions OIDC → AssumeRole (Terraform)
