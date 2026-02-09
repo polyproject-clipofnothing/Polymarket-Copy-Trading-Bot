@@ -1,8 +1,10 @@
-# python/scripts/run_recorder.py
+from src.services.recorder.recorder_service import main as service_main
+
+
 def main() -> int:
-    print("[Phase 1] Recorder entrypoint (scaffold).")
-    print("TODO: wire to src.services.recorder in PR-02.")
-    return 0
+    return service_main()
+
 
 if __name__ == "__main__":
-    raise RuntimeError("Run as a module: python -m scripts.run_recorder")
+    # Correct entrypoint when run as a module
+    raise SystemExit(main())
