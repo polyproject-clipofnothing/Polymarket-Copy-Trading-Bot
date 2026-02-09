@@ -39,5 +39,5 @@ jobs:
       - name: Terraform validate
         run: terraform validate
 
-      - name: Terraform plan
-        run: terraform plan -no-color
+      - name: Terraform plan (CI - no refresh)
+        run: terraform plan -no-color -refresh=false
