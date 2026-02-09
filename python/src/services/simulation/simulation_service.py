@@ -19,11 +19,6 @@ from pathlib import Path
 from typing import Dict
 
 from src.cloud.factory import get_cloud
-
-from __future__ import annotations
-
-from pathlib import Path
-
 from src.services.simulation.pipeline.reader import read_events
 from src.services.simulation.pipeline.simulator import ReplayStats, replay_event_stream
 from src.services.simulation.pipeline.reporter import print_summary, write_summary
@@ -61,9 +56,6 @@ def main() -> int:
             },
         },
     )
-
-    events_path = Path("recorder_data") / "events.jsonl"
-    out_path = Path("simulation_results") / "replay_summary.json"
 
     stats = ReplayStats()
 
@@ -105,7 +97,4 @@ def main() -> int:
     )
 
     print_summary(stats)
-    write_summary(out_path, stats)
-    print_summary(stats)
-
     return 0

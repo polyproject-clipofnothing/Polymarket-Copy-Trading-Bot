@@ -41,8 +41,6 @@ def main() -> int:
         # Publish canonical event for downstream consumers (Phase 1 local backend)
         cloud.events.publish("recorder", event)
 
-    for raw_event in poll_events():
-        event = normalize_event(raw_event)
         write_event(event)
         print(f"[Recorder] Event written: {event['type']}")
 

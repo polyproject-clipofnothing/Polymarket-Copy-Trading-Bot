@@ -60,6 +60,23 @@ strategy_data/
 simulation_results/
 
 execution_reports/
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+crash.log
+*.tfvars
+*.tfvars.json
+
+# Local overrides
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Terraform lock info (OK to keep; up to you)
+# .terraform.lock.hcl
 .env
 .env.*
 
