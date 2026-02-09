@@ -13,6 +13,9 @@ This service produces raw canonical events for downstream consumers
 from __future__ import annotations
 
 from src.cloud.factory import get_cloud
+
+from __future__ import annotations
+
 from src.services.recorder.ingestion.poller_polymarket_gamma import poll_events
 from src.services.recorder.ingestion.normalizer import normalize_event
 from src.services.recorder.ingestion.writer import write_event
