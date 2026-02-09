@@ -56,6 +56,10 @@ __pycache__/
 recorder_data/
 
 strategy_data/
+
+simulation_results/
+
+execution_reports/
 .env
 .env.*
 

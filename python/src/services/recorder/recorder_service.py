@@ -10,6 +10,9 @@ This service produces raw canonical events for downstream consumers
 (strategy, simulation, analytics).
 """
 
+from __future__ import annotations
+
+from src.cloud.factory import get_cloud
 
 from __future__ import annotations
 
@@ -29,6 +32,14 @@ def main() -> int:
     print(" - Ingestion enabled.")
     print(" - No execution allowed.")
     print(" - No private keys required.")
+
+    cloud = get_cloud()
+
+    for raw_event in poll_events():
+        event = normalize_event(raw_event)
+
+        # Publish canonical event for downstream consumers (Phase 1 local backend)
+        cloud.events.publish("recorder", event)
 
     for raw_event in poll_events():
         event = normalize_event(raw_event)
