@@ -44,9 +44,7 @@ def main() -> int:
     Returns:
         int: process exit code (0 = success)
     """
-    # -------------------------
-    # Fail-fast runtime config
-    # -------------------------
+    # Fail fast if runtime config is invalid (S3, env vars, etc.)
     try:
         validate_runtime_config()
     except ConfigError as e:
