@@ -20,6 +20,7 @@ import traceback
 from pathlib import Path
 from typing import Dict
 
+from src.config.validate import ConfigError, validate_runtime_config
 from src.cloud.factory import get_cloud
 from src.config.validate import ConfigError, validate_runtime_config
 from src.observability.events import run_end, run_error, run_start

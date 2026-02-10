@@ -49,6 +49,13 @@ def main() -> int:
         log_error(f"[Config] {e}", context={"type": "config_error"})
         return 2
 
+    # Fail fast if env/config is invalid (especially S3 ObjectStore config)
+    try:
+        validate_runtime_config()
+    except ConfigError as e:
+        print(f"[Config] {e}")
+        return 2
+
     cloud = get_cloud()
 
     run_id = f"recorder-{int(time.time())}"
