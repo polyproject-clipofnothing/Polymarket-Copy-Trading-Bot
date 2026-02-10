@@ -1,21 +1,50 @@
-# Terraform Bootstrap (PR12)
+# Terraform Bootstrap Stack
 
-Creates:
-- S3 bucket for Terraform state
-- DynamoDB table for state locking
+This stack contains **one-time, account-level IAM resources** that must be
+created by an AWS principal with **IAM admin privileges**.
 
-Auth uses AWS SSO.
+It is intentionally **separate** from the main Terraform stack.
 
-Run (once):
+---
+
+## What This Stack Creates
+
+- GitHub Actions **OIDC Provider**
+- IAM Role assumed by GitHub Actions via OIDC
+- Inline IAM policy granting Terraform CI limited permissions
+
+**This stack does NOT create:**
+- Terraform state S3 bucket
+- DynamoDB lock table
+- Application infrastructure
+
+Those are managed by the main Terraform stack.
+
+---
+
+## Why This Stack Exists
+
+Separating bootstrap IAM resources ensures:
+
+- CI **cannot modify its own permissions**
+- IAM changes are explicit and auditable
+- Application Terraform remains least-privileged
+- Future PRs don’t accidentally cause IAM drift
+
+This is a standard, production-grade Terraform pattern.
+
+---
+
+## Prerequisites
+
+- AWS SSO profile with **IAM admin permissions**
+- Terraform installed locally
+- AWS region: `us-east-1`
+
+---
+
+## Authenticate (AWS SSO)
+
 ```bash
-aws sso login --profile polymarket-dev
-export AWS_PROFILE=polymarket-dev
-
-cd infra/terraform/bootstrap
-terraform init
-terraform apply \
-  -var="aws_region=us-east-1" \
-  -var="env=dev" \
-  -var="project=polymarket-copy-bot" \
-  -var="tf_state_bucket_name=polymarket-copy-bot-tfstate-dev-137097287791" \
-  -var="tf_lock_table_name=polymarket-copy-bot-tf-lock-dev"
+aws sso login --profile polymarket-admin
+export AWS_PROFILE=polymarket-admin

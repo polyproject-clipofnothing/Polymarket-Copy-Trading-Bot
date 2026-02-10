@@ -1,3 +1,7 @@
-output "tf_state_bucket_name" { value = aws_s3_bucket.tf_state.bucket }
-output "tf_lock_table_name" { value = aws_dynamodb_table.tf_lock.name }
-output "aws_region" { value = var.aws_region }
+output "github_actions_oidc_provider_arn" {
+  value = aws_iam_openid_connect_provider.github_actions.arn
+}
+
+output "github_actions_terraform_role_arn" {
+  value = aws_iam_role.github_actions_terraform.arn
+}
