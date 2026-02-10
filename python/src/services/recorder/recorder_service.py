@@ -13,6 +13,7 @@ This service produces raw canonical events for downstream consumers
 from __future__ import annotations
 
 from src.cloud.factory import get_cloud
+from src.config.validate import ConfigError, validate_runtime_config
 from src.services.recorder.ingestion.poller_polymarket_gamma import poll_events
 from src.services.recorder.ingestion.normalizer import normalize_event
 from src.services.recorder.ingestion.writer import write_event
@@ -29,6 +30,13 @@ def main() -> int:
     print(" - Ingestion enabled.")
     print(" - No execution allowed.")
     print(" - No private keys required.")
+
+    # Fail fast if env/config is invalid (especially S3 ObjectStore config)
+    try:
+        validate_runtime_config()
+    except ConfigError as e:
+        print(f"[Config] {e}")
+        return 2
 
     cloud = get_cloud()
 

@@ -18,6 +18,7 @@ import time
 from pathlib import Path
 from typing import Dict
 
+from src.config.validate import ConfigError, validate_runtime_config
 from src.cloud.factory import get_cloud
 from src.services.simulation.pipeline.reader import read_events
 from src.services.simulation.pipeline.simulator import ReplayStats, replay_event_stream
@@ -31,6 +32,13 @@ def main() -> int:
     Returns:
         int: process exit code (0 = success)
     """
+    # Fail fast if runtime config is invalid (S3, env vars, etc.)
+    try:
+        validate_runtime_config()
+    except ConfigError as e:
+        print(f"[Config] {e}")
+        return 2
+
     print("[Phase 1a] Simulation service starting (replay mode).")
     print(" - Reads recorder_data/events.jsonl")
     print(" - Writes simulation_results/replay_summary.json")

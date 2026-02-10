@@ -11,11 +11,11 @@ This service:
 - emits order_intents (signal-only) for downstream execution (Phase 4+)
 """
 
-
 from __future__ import annotations
 
 from pathlib import Path
 
+from src.config.validate import ConfigError, validate_runtime_config
 from src.services.strategy.pipeline.reader import read_events
 from src.services.strategy.pipeline.generator import generate_order_intent
 from src.services.strategy.pipeline.writer import write_order_intents
@@ -28,6 +28,15 @@ def main() -> int:
     Returns:
         int: process exit code (0 = success)
     """
+    # Fail fast if runtime config is invalid.
+    # Strategy is currently local-only, but we still validate in case future
+    # changes add cloud dependencies (and to keep entrypoints consistent).
+    try:
+        validate_runtime_config()
+    except ConfigError as e:
+        print(f"[Config] {e}")
+        return 2
+
     print("[Phase 2] Strategy service starting (signal-only).")
     print(" - Reads recorder_data/events.jsonl")
     print(" - Emits strategy_data/order_intents.jsonl")
