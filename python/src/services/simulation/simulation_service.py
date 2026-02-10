@@ -14,6 +14,7 @@ This service:
 from __future__ import annotations
 
 import json
+import os
 import time
 from pathlib import Path
 from typing import Dict
@@ -23,6 +24,17 @@ from src.cloud.factory import get_cloud
 from src.services.simulation.pipeline.reader import read_events
 from src.services.simulation.pipeline.simulator import ReplayStats, replay_event_stream
 from src.services.simulation.pipeline.reporter import print_summary, write_summary
+from src.services.common.manifest import RunManifest, get_git_sha
+
+
+def _norm_prefix(prefix: str | None) -> str:
+    p = (prefix or "").strip().strip("/")
+    return p if p else "polymarket-copy-bot"
+
+
+def _join(prefix: str, rel_key: str) -> str:
+    # Build the canonical "full" key stored in manifests/docs.
+    return f"{prefix}/{rel_key.strip().lstrip('/')}"
 
 
 def main() -> int:
@@ -45,13 +57,27 @@ def main() -> int:
     print(" - No execution allowed. No private keys required.")
 
     cloud = get_cloud()
+
     run_id = f"replay-{int(time.time())}"
     started_at = time.time()
 
     events_path = Path("recorder_data") / "events.jsonl"
-    out_path = Path("simulation_results") / "replay_summary.json"
+    local_summary_path = Path("simulation_results") / "replay_summary.json"
+    local_manifest_path = Path("simulation_results") / "manifest.json"
 
-    # Publish start event
+    # Canonical prefix (PR19) for manifests/docs only
+    prefix = _norm_prefix(os.getenv("S3_OBJECT_PREFIX", "polymarket-copy-bot"))
+
+    # IMPORTANT:
+    # - rel_* keys are relative-to-prefix (safe for object store implementations that prepend prefix)
+    # - full_* keys are the canonical keys we record in manifests/docs
+    rel_replay_key = f"simulation/{run_id}/replay_summary.json"
+    rel_manifest_key = f"simulation/{run_id}/manifest.json"
+
+    full_replay_key = _join(prefix, rel_replay_key)
+    full_manifest_key = _join(prefix, rel_manifest_key)
+
+    # Start event
     cloud.events.publish(
         "simulation",
         {
@@ -59,36 +85,74 @@ def main() -> int:
             "mode": "replay",
             "run_id": run_id,
             "ts": started_at,
-            "inputs": {
-                "events_path": str(events_path),
-            },
+            "inputs": {"events_path": str(events_path)},
         },
     )
 
     stats = ReplayStats()
-
     for event in read_events(events_path):
         replay_event_stream(stats, event)
 
-    # Canonical summary payload (single source of truth)
     payload: Dict = {
         "version": 1,
+        "run_id": run_id,
         "events_total": stats.events_total,
         "events_by_type": stats.events_by_type,
     }
 
-    # Local write (Phase 1 convenience)
-    write_summary(out_path, stats)
+    # Local write (always)
+    write_summary(local_summary_path, stats)
 
-    # Cloud-compatible artifact write (local backend now, S3 later)
-    artifact_key = f"simulation/{run_id}/replay_summary.json"
+    # Object store summary write (local or S3 backend)
+    # PASS RELATIVE KEY ONLY
     cloud.objects.put_bytes(
-        key=artifact_key,
+        key=rel_replay_key,
         data=json.dumps(payload, indent=2).encode("utf-8"),
         content_type="application/json",
     )
 
     finished_at = time.time()
+
+    # Manifest
+    manifest = RunManifest(
+        schema_version=1,
+        service="simulation",
+        run_id=run_id,
+        started_at=started_at,
+        ended_at=finished_at,
+        duration_s=finished_at - started_at,
+        git_sha=get_git_sha(),
+        config={
+            "cloud_backend": os.getenv("CLOUD_BACKEND", "local"),
+            "object_store_backend": os.getenv("OBJECT_STORE_BACKEND", "local"),
+            "aws_region": os.getenv("AWS_REGION"),
+            "s3_bucket": os.getenv("S3_OBJECT_BUCKET"),
+            "s3_prefix": prefix,
+            "inputs": {"events_path": str(events_path)},
+        },
+        artifacts={
+            # Canonical keys (what downstream tools should use)
+            "replay_summary": full_replay_key,
+            "manifest": full_manifest_key,
+            # Local convenience
+            "local_summary_path": str(local_summary_path),
+            "local_manifest_path": str(local_manifest_path),
+        },
+    )
+
+    # Local manifest file (include newline so your terminal doesn't show a trailing %)
+    local_manifest_path.parent.mkdir(parents=True, exist_ok=True)
+    local_manifest_path.write_text(manifest.to_json() + "\n", encoding="utf-8")
+
+    # Object store manifest file
+    # PASS RELATIVE KEY ONLY
+    cloud.objects.put_bytes(
+        key=rel_manifest_key,
+        data=(manifest.to_json() + "\n").encode("utf-8"),
+        content_type="application/json",
+    )
+
+    # End event
     cloud.events.publish(
         "simulation",
         {
@@ -98,8 +162,8 @@ def main() -> int:
             "ts": finished_at,
             "duration_s": finished_at - started_at,
             "artifacts": {
-                "replay_summary": artifact_key,
-                "local_summary_path": str(out_path),
+                "replay_summary": full_replay_key,
+                "manifest": full_manifest_key,
             },
         },
     )
